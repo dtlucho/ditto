@@ -10,13 +10,22 @@ import (
 	"time"
 )
 
+// version is set at build time via -ldflags "-X main.version=..."
+var version = "dev"
+
 func main() {
 	port := flag.Int("port", 8888, "Port to listen on")
 	target := flag.String("target", "", "Target backend URL to proxy unmatched requests")
 	mocksDir := flag.String("mocks", "./mocks", "Directory containing mock JSON files")
 	https := flag.Bool("https", false, "Enable HTTPS using a self-signed certificate")
 	certDir := flag.String("certs", "./certs", "Directory to store the self-signed certificate")
+	showVersion := flag.Bool("version", false, "Print version and exit")
 	flag.Parse()
+
+	if *showVersion {
+		fmt.Println(version)
+		return
+	}
 
 	mocks, err := LoadMocks(*mocksDir)
 	if err != nil {
@@ -99,7 +108,7 @@ func printStartup(mocks []Mock, port int, target, mocksDir string, https bool, c
 	}
 	fmt.Println()
 	fmt.Println("  ┌──────────────────────────────────┐")
-	fmt.Println("  │           DITTO v0.2.0           │")
+	fmt.Printf("  │           DITTO %-16s│\n", version)
 	fmt.Println("  └──────────────────────────────────┘")
 	fmt.Println()
 	fmt.Printf("  URL:        %s://0.0.0.0:%d\n", scheme, port)

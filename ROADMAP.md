@@ -18,11 +18,12 @@ If the answer is no, we need to fix the UX before adding new capabilities.
 
 > ⚠️ HTTPS is now an **advanced, optional** feature. The recommended setup is HTTP + a debug-only network config in the app. See README + [docs/HTTPS.md](docs/HTTPS.md).
 
-## v0.3 — Distributable binary
+## v0.3 — Distributable binary ✅
 
-- Build `.dmg` (and eventually `.exe`, `.deb`) so non-technical users install Ditto like any other app
-- Drop the `git clone` + `go build` requirement
-- Set up a GitHub Actions workflow for automated releases
+- ~~Set up a GitHub Actions workflow for automated releases on git tags~~
+- ~~Cross-compile for macOS (Intel + Apple Silicon), Linux (amd64 + arm64), Windows (amd64)~~
+- ~~Drop the `git clone` + `go build` requirement — README now shows binary download as the primary install path~~
+- Future: signed `.dmg` / `.pkg` / `.deb` installers, Homebrew tap
 
 ## v0.4 — Web UI (foundation)
 
