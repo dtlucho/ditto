@@ -34,6 +34,61 @@ go build -o ditto .
 | `--port` | `8888` | Port to listen on |
 | `--target` | _(none)_ | Backend URL to forward unmatched requests to |
 | `--mocks` | `./mocks` | Directory containing mock JSON files |
+| `--https` | `false` | Serve over HTTPS (advanced — see [docs/HTTPS.md](docs/HTTPS.md)) |
+| `--certs` | `./certs` | Directory to store the generated TLS certificate |
+
+## Connecting your app
+
+Ditto binds to `0.0.0.0`, so any device on the same network can reach it.
+
+| Where the app runs | Base URL |
+|---|---|
+| Android emulator | `http://10.0.2.2:8888` |
+| iOS simulator | `http://localhost:8888` |
+| Physical device (same Wi-Fi) | `http://<your-machine-ip>:8888` |
+
+### Allowing HTTP in your app
+
+Modern mobile platforms block plain HTTP traffic by default. Add a **debug-only** exception in the app you want to use with Ditto. This is a one-time change per app.
+
+#### Android
+
+Create `android/app/src/debug/res/xml/network_security_config.xml`:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+  <domain-config cleartextTrafficPermitted="true">
+    <domain includeSubdomains="true">10.0.2.2</domain>
+    <domain includeSubdomains="true">localhost</domain>
+    <!-- Add your machine's local IP here for physical-device testing -->
+  </domain-config>
+</network-security-config>
+```
+
+Then reference it in `android/app/src/debug/AndroidManifest.xml`:
+
+```xml
+<application android:networkSecurityConfig="@xml/network_security_config" />
+```
+
+#### iOS
+
+In `ios/Runner/Info-Debug.plist` (or your debug-only Info.plist), add:
+
+```xml
+<key>NSAppTransportSecurity</key>
+<dict>
+  <key>NSAllowsArbitraryLoadsForDevelopment</key>
+  <true/>
+</dict>
+```
+
+These changes only affect debug builds — production stays HTTPS-only.
+
+### Need HTTPS instead?
+
+If you can't modify the app or your project requires HTTPS in development, see [docs/HTTPS.md](docs/HTTPS.md). It works, but requires installing a self-signed certificate on each device.
 
 ## Creating mocks
 
@@ -93,13 +148,9 @@ App request ──► Ditto ──┬── Mock found? ──► Return fake re
 
 Mocks are reloaded on every request, so you can add or edit mock files without restarting Ditto.
 
-## Using with mobile devices
+## Roadmap
 
-Ditto binds to `0.0.0.0`, so any device on the same network can reach it.
-
-- **Android emulator**: `http://10.0.2.2:8888`
-- **iOS simulator**: `http://localhost:8888`
-- **Physical device**: `http://<your-machine-ip>:8888`
+See [ROADMAP.md](ROADMAP.md) for upcoming features.
 
 ## License
 

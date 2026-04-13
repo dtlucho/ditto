@@ -14,6 +14,8 @@ func main() {
 	port := flag.Int("port", 8888, "Port to listen on")
 	target := flag.String("target", "", "Target backend URL to proxy unmatched requests")
 	mocksDir := flag.String("mocks", "./mocks", "Directory containing mock JSON files")
+	https := flag.Bool("https", false, "Enable HTTPS using a self-signed certificate")
+	certDir := flag.String("certs", "./certs", "Directory to store the self-signed certificate")
 	flag.Parse()
 
 	mocks, err := LoadMocks(*mocksDir)
@@ -36,7 +38,15 @@ func main() {
 		log.Printf("Proxying unmatched requests to %s", *target)
 	}
 
-	printStartup(mocks, *port, *target, *mocksDir)
+	var certPath, keyPath string
+	if *https {
+		certPath, keyPath, err = EnsureCert(*certDir)
+		if err != nil {
+			log.Fatalf("Failed to prepare TLS certificate: %v", err)
+		}
+	}
+
+	printStartup(mocks, *port, *target, *mocksDir, *https, certPath)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Reload mocks on every request so you can edit files without restarting
@@ -75,17 +85,28 @@ func main() {
 	})
 
 	addr := fmt.Sprintf("0.0.0.0:%d", *port)
-	log.Fatal(http.ListenAndServe(addr, handler))
+	if *https {
+		log.Fatal(http.ListenAndServeTLS(addr, certPath, keyPath, handler))
+	} else {
+		log.Fatal(http.ListenAndServe(addr, handler))
+	}
 }
 
-func printStartup(mocks []Mock, port int, target, mocksDir string) {
+func printStartup(mocks []Mock, port int, target, mocksDir string, https bool, certPath string) {
+	scheme := "http"
+	if https {
+		scheme = "https"
+	}
 	fmt.Println()
 	fmt.Println("  ┌──────────────────────────────────┐")
-	fmt.Println("  │           DITTO v0.1.0           │")
+	fmt.Println("  │           DITTO v0.2.0           │")
 	fmt.Println("  └──────────────────────────────────┘")
 	fmt.Println()
-	fmt.Printf("  Port:       %d\n", port)
+	fmt.Printf("  URL:        %s://0.0.0.0:%d\n", scheme, port)
 	fmt.Printf("  Mocks dir:  %s\n", mocksDir)
+	if https {
+		fmt.Printf("  TLS cert:   %s\n", certPath)
+	}
 	if target != "" {
 		fmt.Printf("  Target:     %s\n", target)
 	} else {
@@ -104,5 +125,5 @@ func printStartup(mocks []Mock, port int, target, mocksDir string) {
 		}
 		fmt.Println()
 	}
-	fmt.Printf("  Listening on 0.0.0.0:%d ...\n\n", port)
+	fmt.Printf("  Listening on %s://0.0.0.0:%d ...\n\n", scheme, port)
 }

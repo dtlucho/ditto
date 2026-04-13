@@ -1,5 +1,8 @@
 # Binary
 ditto
 
+# Generated TLS certs
+certs/
+
 # OS
 .DS_Store

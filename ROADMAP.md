@@ -1,47 +1,90 @@
 # Roadmap
 
-Planned features and improvements for Ditto, roughly in priority order.
+Planned features and improvements for Ditto, in priority order.
 
-## v0.2 — HTTPS support
+## Guiding principle
 
-- Auto-generate a self-signed certificate at startup
-- Add `--https` flag to enable TLS mode
-- Document how to trust the cert on iOS/Android devices
+Ditto is built for **internal teams**, including non-technical product folks. Every feature should be evaluated against:
 
-## v0.3 — Record mode
+> Could a product manager who has never opened a terminal use this?
 
-- Add `--record` flag
-- When enabled, proxy all requests to the target backend and **save the responses as mock files automatically**
-- Eliminates the need to write mock JSON by hand for most cases
+If the answer is no, we need to fix the UX before adding new capabilities.
 
-## v0.4 — Smarter request matching
+## v0.2 — HTTPS support ✅
+
+- ~~Auto-generate a self-signed certificate at startup~~
+- ~~Add `--https` flag to enable TLS mode~~
+- ~~Document how to trust the cert on iOS/Android devices~~
+
+> ⚠️ HTTPS is now an **advanced, optional** feature. The recommended setup is HTTP + a debug-only network config in the app. See README + [docs/HTTPS.md](docs/HTTPS.md).
+
+## v0.3 — Distributable binary
+
+- Build `.dmg` (and eventually `.exe`, `.deb`) so non-technical users install Ditto like any other app
+- Drop the `git clone` + `go build` requirement
+- Set up a GitHub Actions workflow for automated releases
+
+## v0.4 — Web UI (foundation)
+
+A browser-based dashboard served by the same Go binary. This is the single biggest lever for non-technical adoption.
+
+- Embed a small SPA into the binary (no separate frontend project to maintain)
+- Live request log via WebSocket (see what's flowing through Ditto in real time)
+- Visual list of mocks with on/off toggles
+- Open the UI on startup (`--no-ui` to opt out)
+
+## v0.5 — Mock management in the UI
+
+- Create / edit / delete mocks from the browser
+- Form-based editor with JSON validation
+- Duplicate / reorder mocks
+- No more hand-editing JSON files
+
+## v0.6 — One-click cert install
+
+For teams that *do* need HTTPS, eliminate the manual cert pain:
+
+- "Install on Android emulator" button → runs `adb` commands behind the scenes
+- "Install on iOS simulator" button → uses `xcrun simctl` to add the cert
+- For physical devices: generate a `.mobileconfig` for iOS (Firebase-style profile install) and a QR code linking to the cert
+- A `ditto doctor` command to verify the trust setup on each connected device
+
+## v0.7 — Record mode
+
+- Add `--record` flag (and a UI toggle)
+- Proxy all requests to the target backend and **save the responses as mock files automatically**
+- Eliminates writing mock JSON by hand for most cases
+- UI: review captured requests, mark which ones to keep as mocks
+
+## v0.8 — Smarter request matching
 
 - Match on query parameters
 - Match on request headers
 - Match on request body content
 - Multiple mocks per `method + path` with different conditions (e.g., different response per user ID)
 
-## v0.5 — Web UI
+## v0.9 — First-run wizard
 
-- Embedded web dashboard served by the same Go binary
-- Live request log via WebSocket
-- Create / edit / toggle mocks from the browser
-- No separate frontend project to maintain
+- Detects connected emulators / simulators on launch
+- Walks the user through configuring their app (with copy-paste snippets specific to their stack)
+- Offers to install certs if they need HTTPS
+- Goal: zero-friction onboarding for someone who has never seen Ditto before
 
-## v0.6 — Config file
+## v1.0 — Config file + multi-target
 
-- Replace / supplement CLI flags with a YAML or JSON config file
-- Support more complex setups (multiple targets, per-path routing, environment switching)
+- YAML or JSON config file as an alternative to CLI flags
+- Multiple backends with per-path routing (e.g., `/users/*` → service A, `/bets/*` → service B)
+- Switchable environments (dev, staging) without restarting
 
 ## Ideas / nice to have
 
 - Dynamic responses (templates that use values from the request — e.g., echo back a path param)
-- Stateful mocks (e.g., `POST /users` creates a record, subsequent `GET /users/:id` returns it)
-- Mock chaining / sequences (return different responses on subsequent calls to the same endpoint)
-- Latency simulation profiles (slow 3G, flaky network, etc.)
+- Stateful mocks (`POST /users` creates a record, subsequent `GET /users/:id` returns it)
+- Mock chaining / sequences (return different responses on subsequent calls)
+- Latency simulation profiles (slow 3G, flaky network)
 - Failure injection (random 500s, timeouts) for resilience testing
-- Distributable binaries via GitHub Releases (Mac, Linux, Windows)
-- Homebrew tap for easy installation
+- Homebrew tap for one-line install on macOS
+- Auto-update mechanism
 
 ## Out of scope (for now)
 
