@@ -1,0 +1,15 @@
+{
+  "method": "GET",
+  "path": "/api/v1/users",
+  "status": 200,
+  "headers": {
+    "Content-Type": "application/json"
+  },
+  "body": {
+    "users": [
+      {"id": 1, "name": "John Doe", "email": "john@example.com"},
+      {"id": 2, "name": "Jane Doe", "email": "jane@example.com"}
+    ]
+  },
+  "delay_ms": 0
+}
