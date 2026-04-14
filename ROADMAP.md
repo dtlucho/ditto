@@ -33,20 +33,21 @@ If the answer is no, we need to fix the UX before adding new capabilities.
 - ~~Connection URLs panel (Android emulator, iOS simulator, physical device)~~
 - ~~Auto-opens browser on startup (`--no-ui` to opt out)~~
 
-## v0.5 — Save as mock + mock management + runtime controls
+## v0.5 — Save as mock + mock management + runtime controls ✅
 
-- **Response viewer**: click a log entry to see the full response body (for both proxied and mocked requests)
-- **Save as mock**: one-click button on any proxied response to save it as a mock file
-- **Delete mock**: remove a mock from the UI (deletes the JSON file)
-- **Mock editor**: edit body, status, headers, delay inline in the dashboard
-- **Target URL input**: change the backend URL from the dashboard without restarting
+- ~~Response viewer: click a log entry to see the full response body~~
+- ~~Save as mock: one-click button on any proxied response to save it as a mock file~~
+- ~~Delete mock: remove a mock from the UI (deletes the JSON file)~~
+- ~~Mock editor: edit body, status, headers, delay inline in the dashboard~~
+- ~~Target URL input: change the backend URL from the dashboard without restarting~~
 
-## v0.6 — Query parameter matching
+## v0.6 — Smart matching + de-duplication
 
 - Match mocks on query parameters (e.g., `/transactions?status=pending` vs `/transactions?status=completed`)
 - Match on request headers
 - Match on request body content
 - Multiple mocks per `method + path` with different conditions
+- **De-duplication**: prevent two mocks with identical method + path + conditions from being enabled at the same time
 
 ## v0.7 — Headless mode
 
