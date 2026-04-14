@@ -101,6 +101,58 @@ main {
   overflow: hidden;
 }
 
+#connect-panel {
+  border-bottom: 1px solid var(--border);
+}
+
+#connect-panel h2 {
+  border-bottom: none;
+  padding-bottom: 4px;
+}
+
+#connect-urls {
+  padding: 0 16px 14px;
+}
+
+.connect-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.connect-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  min-width: 90px;
+  flex-shrink: 0;
+}
+
+.connect-url {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 12px;
+  color: var(--accent);
+  background: rgba(88, 166, 255, 0.08);
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  user-select: all;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.connect-url:hover {
+  background: rgba(88, 166, 255, 0.15);
+}
+
+.connect-url.copied {
+  color: var(--green);
+  background: rgba(63, 185, 80, 0.1);
+}
+
 #sidebar h2 {
   font-size: 13px;
   text-transform: uppercase;

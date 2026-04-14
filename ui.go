@@ -60,12 +60,13 @@ func (b *EventBus) Publish(event LogEvent) {
 	}
 }
 
-// ServerInfo holds metadata shown in the UI footer.
+// ServerInfo holds metadata shown in the UI footer and connect panel.
 type ServerInfo struct {
-	Port     int    `json:"port"`
-	Target   string `json:"target"`
-	HTTPS    bool   `json:"https"`
-	MocksDir string `json:"mocks_dir"`
+	Port     int      `json:"port"`
+	Target   string   `json:"target"`
+	HTTPS    bool     `json:"https"`
+	MocksDir string   `json:"mocks_dir"`
+	LocalIPs []string `json:"local_ips"`
 }
 
 // RegisterUI sets up the dashboard routes on the given mux.

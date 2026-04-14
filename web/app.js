@@ -79,6 +79,7 @@ async function loadMocks() {
     const res = await fetch(`${API_BASE}/mocks`);
     const data = await res.json();
     renderMocks(data.mocks);
+    renderConnectURLs(data.info);
     updateFooter(data.info);
   } catch (err) {
     console.error('Failed to load mocks:', err);
@@ -129,6 +130,45 @@ async function reloadMocks() {
   } catch (err) {
     console.error('Failed to reload mocks:', err);
   }
+}
+
+// --- Connection URLs ---
+
+function renderConnectURLs(info) {
+  if (!info) return;
+  const container = document.getElementById('connect-urls');
+  const scheme = info.https ? 'https' : 'http';
+
+  const urls = [
+    { label: 'Android emulator', url: `${scheme}://10.0.2.2:${info.port}` },
+    { label: 'iOS simulator', url: `${scheme}://localhost:${info.port}` },
+  ];
+
+  if (info.local_ips && info.local_ips.length > 0) {
+    urls.push({
+      label: 'Physical device',
+      url: `${scheme}://${info.local_ips[0]}:${info.port}`
+    });
+  }
+
+  container.innerHTML = urls.map(({ label, url }) => `
+    <div class="connect-row">
+      <span class="connect-label">${label}</span>
+      <span class="connect-url" onclick="copyURL(this)" title="Click to copy">${url}</span>
+    </div>
+  `).join('');
+}
+
+function copyURL(el) {
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    el.classList.add('copied');
+    const original = el.textContent;
+    el.textContent = 'Copied!';
+    setTimeout(() => {
+      el.textContent = original;
+      el.classList.remove('copied');
+    }, 1200);
+  });
 }
 
 // --- Footer ---

@@ -70,11 +70,16 @@ func main() {
 
 	// Register UI routes
 	if !*noUI {
+		var ipStrings []string
+		for _, ip := range localIPs() {
+			ipStrings = append(ipStrings, ip.String())
+		}
 		info := ServerInfo{
 			Port:     *port,
 			Target:   *target,
 			HTTPS:    *https,
 			MocksDir: *mocksDir,
+			LocalIPs: ipStrings,
 		}
 		RegisterUI(mux, store, bus, info)
 	}
