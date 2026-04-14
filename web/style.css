@@ -26,6 +26,8 @@ body {
   flex-direction: column;
 }
 
+/* --- Header --- */
+
 header {
   display: flex;
   justify-content: space-between;
@@ -70,6 +72,8 @@ header {
   color: var(--red);
 }
 
+/* --- Buttons --- */
+
 button {
   background: var(--border);
   color: var(--text);
@@ -85,11 +89,52 @@ button:hover {
   background: #3d444d;
 }
 
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.btn-primary:hover {
+  background: #4c93e6;
+}
+
+.btn-secondary {
+  background: transparent;
+  border-color: var(--border);
+}
+
+.btn-danger {
+  color: var(--red);
+}
+
+.btn-danger:hover {
+  background: rgba(248, 81, 73, 0.15);
+}
+
+.btn-save-mock {
+  color: var(--green);
+  background: none;
+  border: none;
+  padding: 2px 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.btn-save-mock:hover {
+  background: rgba(63, 185, 80, 0.15);
+  border-radius: 4px;
+}
+
+/* --- Layout --- */
+
 main {
   display: flex;
   flex: 1;
   overflow: hidden;
 }
+
+/* --- Sidebar --- */
 
 #sidebar {
   width: 300px;
@@ -100,6 +145,58 @@ main {
   flex-direction: column;
   overflow: hidden;
 }
+
+#sidebar h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* --- Target URL --- */
+
+#target-panel {
+  border-bottom: 1px solid var(--border);
+}
+
+#target-panel h2 {
+  border-bottom: none;
+  padding-bottom: 4px;
+}
+
+.target-input-row {
+  display: flex;
+  gap: 6px;
+  padding: 0 16px 14px;
+}
+
+.target-input-row input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.target-input-row input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.target-input-row button {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+/* --- Connect panel --- */
 
 #connect-panel {
   border-bottom: 1px solid var(--border);
@@ -153,16 +250,13 @@ main {
   background: rgba(63, 185, 80, 0.1);
 }
 
-#sidebar h2 {
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--text-muted);
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--border);
+/* --- Mocks panel --- */
+
+#mocks-panel {
+  flex: 1;
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .badge {
@@ -183,10 +277,9 @@ main {
 .mock-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
+  gap: 8px;
+  padding: 8px 16px;
   border-bottom: 1px solid var(--border);
-  cursor: pointer;
   transition: background 0.15s;
 }
 
@@ -202,23 +295,55 @@ main {
   font-size: 11px;
   font-weight: 700;
   font-family: 'SF Mono', 'Fira Code', monospace;
-  min-width: 50px;
+  min-width: 44px;
 }
 
 .mock-item .path {
-  font-size: 13px;
+  font-size: 12px;
   font-family: 'SF Mono', 'Fira Code', monospace;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
+  cursor: pointer;
 }
 
-.mock-item .mock-status {
-  font-size: 12px;
-  color: var(--text-muted);
-  font-family: 'SF Mono', 'Fira Code', monospace;
+.mock-item .path:hover {
+  color: var(--accent);
 }
+
+.mock-item .mock-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.mock-item:hover .mock-actions {
+  opacity: 1;
+}
+
+.mock-action-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px 4px;
+  font-size: 14px;
+  border-radius: 4px;
+}
+
+.mock-action-btn:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+.mock-action-btn.delete:hover {
+  color: var(--red);
+  background: rgba(248, 81, 73, 0.15);
+}
+
+/* --- Toggle --- */
 
 .toggle {
   position: relative;
@@ -262,6 +387,8 @@ main {
   transform: translateX(14px);
 }
 
+/* --- Log panel --- */
+
 #log-panel {
   flex: 1;
   display: flex;
@@ -285,6 +412,11 @@ main {
   flex: 1;
   color: var(--text-muted);
   font-size: 14px;
+}
+
+#log-container {
+  flex: 1;
+  overflow-y: auto;
 }
 
 #log-table {
@@ -314,43 +446,71 @@ main {
 
 #log-table td {
   padding: 6px 12px;
-  border-bottom: 1px solid rgba(48, 54, 61, 0.5);
   white-space: nowrap;
 }
 
-#log-table tbody {
-  display: block;
-  overflow-y: auto;
-  max-height: calc(100vh - 160px);
-}
-
-#log-table thead,
-#log-table tbody tr {
-  display: table;
-  width: 100%;
-  table-layout: fixed;
-}
-
-#log-table th:nth-child(1),
-#log-table td:nth-child(1) { width: 90px; }
-#log-table th:nth-child(2),
-#log-table td:nth-child(2) { width: 70px; }
-#log-table th:nth-child(3),
-#log-table td:nth-child(3) { width: 70px; }
-#log-table th:nth-child(4),
-#log-table td:nth-child(4) { width: auto; }
-#log-table th:nth-child(5),
-#log-table td:nth-child(5) { width: 70px; }
-#log-table th:nth-child(6),
-#log-table td:nth-child(6) { width: 80px; }
-
-#log-body tr {
+.log-row {
+  border-bottom: 1px solid rgba(48, 54, 61, 0.5);
+  cursor: pointer;
   transition: background 0.1s;
 }
 
-#log-body tr:hover {
+.log-row:hover {
   background: rgba(88, 166, 255, 0.04);
 }
+
+.log-row.expanded {
+  background: rgba(88, 166, 255, 0.06);
+}
+
+.log-detail {
+  display: none;
+}
+
+.log-detail.show {
+  display: table-row;
+}
+
+.log-detail td {
+  padding: 0;
+}
+
+.log-detail-content {
+  padding: 12px 16px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.log-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.log-detail-header span {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.log-detail pre {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  font-size: 12px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--text);
+  overflow-x: auto;
+  max-height: 300px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* --- Type badges --- */
 
 .type-badge {
   font-size: 11px;
@@ -379,6 +539,114 @@ main {
 .method-put { color: var(--orange); }
 .method-delete { color: var(--red); }
 .method-patch { color: var(--orange); }
+
+/* --- Modal --- */
+
+#modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+#modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  width: 700px;
+  max-width: 90vw;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 22px;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.modal-close:hover {
+  color: var(--text);
+}
+
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 200px;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* --- Utility --- */
 
 .hidden {
   display: none !important;

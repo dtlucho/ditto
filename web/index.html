@@ -13,39 +13,97 @@
       <span id="connection-status" class="status disconnected">Disconnected</span>
     </div>
     <div class="header-right">
-      <button id="btn-reload" onclick="reloadMocks()">Reload Mocks</button>
-      <button id="btn-clear" onclick="clearLog()">Clear Log</button>
+      <button onclick="reloadMocks()">Reload Mocks</button>
+      <button onclick="clearLog()">Clear Log</button>
     </div>
   </header>
 
   <main>
     <aside id="sidebar">
+      <div id="target-panel">
+        <h2>Target URL</h2>
+        <div class="target-input-row">
+          <input type="text" id="target-input" placeholder="https://api.example.com">
+          <button id="btn-target" onclick="updateTarget()">Set</button>
+        </div>
+      </div>
+
       <div id="connect-panel">
         <h2>Connect your app</h2>
         <div id="connect-urls"></div>
       </div>
-      <h2>Mocks <span id="mock-count" class="badge">0</span></h2>
-      <ul id="mock-list"></ul>
+
+      <div id="mocks-panel">
+        <h2>Mocks <span id="mock-count" class="badge">0</span></h2>
+        <ul id="mock-list"></ul>
+      </div>
     </aside>
 
     <section id="log-panel">
       <h2>Request Log</h2>
       <div id="log-empty" class="empty-state">Waiting for requests...</div>
-      <table id="log-table" class="hidden">
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Type</th>
-            <th>Method</th>
-            <th>Path</th>
-            <th>Status</th>
-            <th>Duration</th>
-          </tr>
-        </thead>
-        <tbody id="log-body"></tbody>
-      </table>
+      <div id="log-container" class="hidden">
+        <table id="log-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Type</th>
+              <th>Method</th>
+              <th>Path</th>
+              <th>Status</th>
+              <th>Duration</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="log-body"></tbody>
+        </table>
+      </div>
     </section>
   </main>
+
+  <!-- Mock editor modal -->
+  <div id="modal-overlay" class="hidden" onclick="closeModal(event)">
+    <div id="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="modal-title">Edit Mock</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group" style="width: 120px">
+            <label>Method</label>
+            <select id="edit-method">
+              <option>GET</option>
+              <option>POST</option>
+              <option>PUT</option>
+              <option>DELETE</option>
+              <option>PATCH</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>Path</label>
+            <input type="text" id="edit-path" placeholder="/api/v1/users">
+          </div>
+          <div class="form-group" style="width: 80px">
+            <label>Status</label>
+            <input type="number" id="edit-status" value="200">
+          </div>
+          <div class="form-group" style="width: 100px">
+            <label>Delay (ms)</label>
+            <input type="number" id="edit-delay" value="0">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Response Body (JSON)</label>
+          <textarea id="edit-body" rows="16" spellcheck="false"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn-primary" id="modal-save" onclick="saveMock()">Save</button>
+      </div>
+    </div>
+  </div>
 
   <footer>
     <span id="footer-info"></span>

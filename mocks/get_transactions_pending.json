@@ -1,0 +1,9 @@
+{
+  "method": "GET",
+  "path": "/transactions",
+  "status": 200,
+  "body": {
+    "transactions": [],
+    "cursor": "eyJMaW1pdCI6MjAsIlNraXAiOjIwfQ"
+  }
+}

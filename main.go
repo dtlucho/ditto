@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"log"
@@ -10,11 +11,82 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+	"sync"
 	"time"
 )
 
 // version is set at build time via -ldflags "-X main.version=..."
 var version = "dev"
+
+// ProxyManager allows changing the target URL at runtime.
+type ProxyManager struct {
+	mu     sync.RWMutex
+	proxy  *httputil.ReverseProxy
+	target string
+}
+
+func NewProxyManager(target string) *ProxyManager {
+	pm := &ProxyManager{}
+	if target != "" {
+		pm.SetTarget(target)
+	}
+	return pm
+}
+
+func (pm *ProxyManager) SetTarget(target string) error {
+	targetURL, err := url.Parse(target)
+	if err != nil {
+		return fmt.Errorf("invalid target URL: %w", err)
+	}
+
+	proxy := httputil.NewSingleHostReverseProxy(targetURL)
+	originalDirector := proxy.Director
+	proxy.Director = func(req *http.Request) {
+		originalDirector(req)
+		req.Host = targetURL.Host
+	}
+
+	pm.mu.Lock()
+	pm.proxy = proxy
+	pm.target = target
+	pm.mu.Unlock()
+	return nil
+}
+
+func (pm *ProxyManager) Target() string {
+	pm.mu.RLock()
+	defer pm.mu.RUnlock()
+	return pm.target
+}
+
+func (pm *ProxyManager) ServeHTTP(w http.ResponseWriter, r *http.Request) bool {
+	pm.mu.RLock()
+	proxy := pm.proxy
+	pm.mu.RUnlock()
+
+	if proxy == nil {
+		return false
+	}
+	proxy.ServeHTTP(w, r)
+	return true
+}
+
+// responseCapture wraps http.ResponseWriter to capture the status code and body.
+type responseCapture struct {
+	http.ResponseWriter
+	statusCode int
+	body       bytes.Buffer
+}
+
+func (rc *responseCapture) WriteHeader(code int) {
+	rc.statusCode = code
+	rc.ResponseWriter.WriteHeader(code)
+}
+
+func (rc *responseCapture) Write(b []byte) (int, error) {
+	rc.body.Write(b)
+	return rc.ResponseWriter.Write(b)
+}
 
 func main() {
 	port := flag.Int("port", 8888, "Port to listen on")
@@ -41,19 +113,7 @@ func main() {
 	bus := NewEventBus()
 
 	// Reverse proxy
-	var proxy *httputil.ReverseProxy
-	if *target != "" {
-		targetURL, err := url.Parse(*target)
-		if err != nil {
-			log.Fatalf("Invalid target URL: %v", err)
-		}
-		proxy = httputil.NewSingleHostReverseProxy(targetURL)
-		originalDirector := proxy.Director
-		proxy.Director = func(req *http.Request) {
-			originalDirector(req)
-			req.Host = targetURL.Host
-		}
-	}
+	proxyMgr := NewProxyManager(*target)
 
 	// TLS
 	var certPath, keyPath string
@@ -68,21 +128,19 @@ func main() {
 	// HTTP mux
 	mux := http.NewServeMux()
 
-	// Register UI routes
-	if !*noUI {
-		var ipStrings []string
-		for _, ip := range localIPs() {
-			ipStrings = append(ipStrings, ip.String())
-		}
-		info := ServerInfo{
-			Port:     *port,
-			Target:   *target,
-			HTTPS:    *https,
-			MocksDir: *mocksDir,
-			LocalIPs: ipStrings,
-		}
-		RegisterUI(mux, store, bus, info)
+	// Register routes (API always available, static files only with UI)
+	var ipStrings []string
+	for _, ip := range localIPs() {
+		ipStrings = append(ipStrings, ip.String())
 	}
+	info := ServerInfo{
+		Port:     *port,
+		Target:   *target,
+		HTTPS:    *https,
+		MocksDir: *mocksDir,
+		LocalIPs: ipStrings,
+	}
+	RegisterUI(mux, store, bus, proxyMgr, info, !*noUI)
 
 	// Main proxy/mock handler
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -111,29 +169,33 @@ func main() {
 
 			log.Printf("MOCK   %s %s → %d (%dms)", r.Method, r.URL.Path, mock.Status, duration)
 			bus.Publish(LogEvent{
-				Timestamp:  time.Now().Format("15:04:05"),
-				Type:       "MOCK",
-				Method:     r.Method,
-				Path:       r.URL.Path,
-				Status:     mock.Status,
-				DurationMs: duration,
+				Timestamp:    time.Now().Format("15:04:05"),
+				Type:         "MOCK",
+				Method:       r.Method,
+				Path:         r.URL.Path,
+				Status:       mock.Status,
+				DurationMs:   duration,
+				ResponseBody: string(mock.RawBody),
 			})
 			return
 		}
 
-		if proxy != nil {
-			log.Printf("PROXY  %s %s", r.Method, r.URL.Path)
+		if proxyMgr.Target() != "" {
+			capture := &responseCapture{ResponseWriter: w, statusCode: 200}
 			proxyStart := time.Now()
-			proxy.ServeHTTP(w, r)
+			proxyMgr.ServeHTTP(capture, r)
 			duration := time.Since(proxyStart).Milliseconds()
 
+			status := capture.statusCode
+			log.Printf("PROXY  %s %s → %d (%dms)", r.Method, r.URL.Path, status, duration)
 			bus.Publish(LogEvent{
-				Timestamp:  time.Now().Format("15:04:05"),
-				Type:       "PROXY",
-				Method:     r.Method,
-				Path:       r.URL.Path,
-				Status:     200,
-				DurationMs: duration,
+				Timestamp:    time.Now().Format("15:04:05"),
+				Type:         "PROXY",
+				Method:       r.Method,
+				Path:         r.URL.Path,
+				Status:       status,
+				DurationMs:   duration,
+				ResponseBody: capture.body.String(),
 			})
 			return
 		}
@@ -145,12 +207,13 @@ func main() {
 		w.Write([]byte(`{"error": "no mock found and no target configured"}`))
 
 		bus.Publish(LogEvent{
-			Timestamp:  time.Now().Format("15:04:05"),
-			Type:       "MISS",
-			Method:     r.Method,
-			Path:       r.URL.Path,
-			Status:     502,
-			DurationMs: duration,
+			Timestamp:    time.Now().Format("15:04:05"),
+			Type:         "MISS",
+			Method:       r.Method,
+			Path:         r.URL.Path,
+			Status:       502,
+			DurationMs:   duration,
+			ResponseBody: `{"error": "no mock found and no target configured"}`,
 		})
 	})
 

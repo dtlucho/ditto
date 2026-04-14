@@ -84,6 +84,127 @@ func (s *MockStore) Count() int {
 	return len(s.mocks)
 }
 
+func (s *MockStore) Create(mock Mock) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if mock.Method == "" || mock.Path == "" {
+		return fmt.Errorf("method and path are required")
+	}
+	if mock.Status == 0 {
+		mock.Status = 200
+	}
+	mock.RawBody = []byte(mock.Body)
+	mock.Enabled = true
+
+	// Generate filename from method + path
+	if mock.Source == "" {
+		mock.Source = generateFilename(mock.Method, mock.Path)
+	}
+
+	// Write to disk
+	if err := writeMockFile(s.dir, mock); err != nil {
+		return err
+	}
+
+	s.mocks = append(s.mocks, mock)
+	return nil
+}
+
+func (s *MockStore) Update(index int, mock Mock) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if index < 0 || index >= len(s.mocks) {
+		return fmt.Errorf("mock not found")
+	}
+	if mock.Method == "" || mock.Path == "" {
+		return fmt.Errorf("method and path are required")
+	}
+	if mock.Status == 0 {
+		mock.Status = 200
+	}
+	mock.RawBody = []byte(mock.Body)
+	mock.Enabled = s.mocks[index].Enabled
+
+	// Keep existing filename or generate new one
+	oldSource := s.mocks[index].Source
+	if mock.Source == "" {
+		mock.Source = oldSource
+	}
+
+	// If source changed, remove old file
+	if mock.Source != oldSource {
+		os.Remove(filepath.Join(s.dir, oldSource))
+	}
+
+	if err := writeMockFile(s.dir, mock); err != nil {
+		return err
+	}
+
+	s.mocks[index] = mock
+	return nil
+}
+
+func (s *MockStore) Delete(index int) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if index < 0 || index >= len(s.mocks) {
+		return fmt.Errorf("mock not found")
+	}
+
+	// Remove file from disk
+	filePath := filepath.Join(s.dir, s.mocks[index].Source)
+	if err := os.Remove(filePath); err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("deleting %s: %w", filePath, err)
+	}
+
+	// Remove from slice
+	s.mocks = append(s.mocks[:index], s.mocks[index+1:]...)
+	return nil
+}
+
+func generateFilename(method, path string) string {
+	clean := strings.ReplaceAll(path, "/", "_")
+	clean = strings.TrimPrefix(clean, "_")
+	if clean == "" {
+		clean = "root"
+	}
+	name := fmt.Sprintf("%s_%s.json", strings.ToLower(method), clean)
+	return name
+}
+
+func writeMockFile(dir string, mock Mock) error {
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return fmt.Errorf("creating mocks dir: %w", err)
+	}
+
+	fileData := struct {
+		Method  string            `json:"method"`
+		Path    string            `json:"path"`
+		Status  int               `json:"status"`
+		Headers map[string]string `json:"headers,omitempty"`
+		Body    json.RawMessage   `json:"body"`
+		DelayMs int               `json:"delay_ms,omitempty"`
+	}{
+		Method:  mock.Method,
+		Path:    mock.Path,
+		Status:  mock.Status,
+		Headers: mock.Headers,
+		Body:    mock.Body,
+		DelayMs: mock.DelayMs,
+	}
+
+	data, err := json.MarshalIndent(fileData, "", "  ")
+	if err != nil {
+		return fmt.Errorf("marshaling mock: %w", err)
+	}
+
+	filePath := filepath.Join(dir, mock.Source)
+	return os.WriteFile(filePath, data, 0o644)
+}
+
 func loadMocksFromDir(dir string) ([]Mock, error) {
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		return nil, nil

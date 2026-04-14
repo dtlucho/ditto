@@ -33,12 +33,13 @@ If the answer is no, we need to fix the UX before adding new capabilities.
 - ~~Connection URLs panel (Android emulator, iOS simulator, physical device)~~
 - ~~Auto-opens browser on startup (`--no-ui` to opt out)~~
 
-## v0.5 — Record mode + runtime UI controls
+## v0.5 — Save as mock + mock management + runtime controls
 
-- **Record mode**: toggle on/off from the dashboard (and via `--record` CLI flag)
-- When enabled, proxy all requests to the target and **save the responses as mock files automatically**
-- **Target URL input** in the dashboard — change where unmatched requests go without restarting
-- UI: review captured requests, choose which ones to keep as mocks
+- **Response viewer**: click a log entry to see the full response body (for both proxied and mocked requests)
+- **Save as mock**: one-click button on any proxied response to save it as a mock file
+- **Delete mock**: remove a mock from the UI (deletes the JSON file)
+- **Mock editor**: edit body, status, headers, delay inline in the dashboard
+- **Target URL input**: change the backend URL from the dashboard without restarting
 
 ## v0.6 — Query parameter matching
 
@@ -47,14 +48,7 @@ If the answer is no, we need to fix the UX before adding new capabilities.
 - Match on request body content
 - Multiple mocks per `method + path` with different conditions
 
-## v0.7 — Mock management in the UI
-
-- Create / edit / delete mocks from the browser
-- Form-based editor with JSON validation
-- Duplicate mocks
-- No more hand-editing JSON files for most use cases
-
-## v0.8 — Headless mode
+## v0.7 — Headless mode
 
 - `--headless` flag for CI pipelines, automated testing, and CLI-only users
 - JSON-formatted log output for machine parsing
@@ -62,7 +56,7 @@ If the answer is no, we need to fix the UX before adding new capabilities.
 
 ## v1.0 — Stable release
 
-Bundle v0.5–v0.8 as the first stable release. The milestone:
+Bundle v0.5–v0.7 as the first stable release. The milestone:
 
 > **A product manager can download Ditto, start it, and use it end-to-end without opening a terminal or editing a file.**
 
@@ -72,6 +66,7 @@ Bundle v0.5–v0.8 as the first stable release. The milestone:
 
 Features for post-v1.0. Not prioritized — will be re-evaluated after v1.0 ships.
 
+- **Record mode**: bulk-capture all proxied responses as mock files automatically (automated version of "save as mock")
 - **Config file + multi-target**: YAML/JSON config, per-path routing to different backends, environment switching (dev/staging)
 - **First-run wizard**: detect connected devices, walk through app configuration with copy-paste snippets
 - **One-click cert install**: UI buttons for Android/iOS cert installation, `.mobileconfig` generation, QR codes
