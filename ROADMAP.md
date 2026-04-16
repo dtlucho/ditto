@@ -78,13 +78,18 @@ Replace the browser + Terminal setup with a standalone native application using 
 - **Persistent storage**: mocks, scenarios, and config stored in `~/Library/Application Support/Ditto/` (macOS), `~/.config/ditto/` (Linux), `%APPDATA%\Ditto\` (Windows). Data survives app updates and reinstalls.
 - **Launch in browser**: button in the header opens the dashboard in the default browser. Useful for screen sharing, second monitors, or sharing with teammates on the same network.
 - **QR code for phone**: "Open on phone" button shows a QR code encoding the physical device dashboard URL. Scan with phone camera → dashboard opens on the phone's browser.
-- **Responsive layout**: dashboard adapts to phone, tablet, and desktop sizes. Sidebar collapses to a hamburger/tabs on small screens, log table becomes a card layout, modal goes full-screen on mobile.
 - **Auto-update notification**: on startup, check GitHub Releases for a newer version. If available, show a banner in the dashboard with a direct download link. No silent installs — user replaces the app themselves.
 - **System tray / menu bar** (stretch): minimize to tray, quick-access to start/stop.
 - Reuses 100% of existing HTML/CSS/JS dashboard code.
 - Builds to a native `.app` (macOS), `.exe` (Windows) — ~15MB binary.
 
-### v1.2 — Sequences
+### v1.2 — UI improvements
+
+- **Responsive layout**: dashboard adapts to phone, tablet, and desktop sizes. Sidebar collapses to a hamburger/tabs on small screens, log table becomes a card layout, modal goes full-screen on mobile.
+- **Log search/filter**: text input that filters log rows by substring match on path, method, or type. Instant client-side filtering as you type.
+- **Quick-filter buttons**: one-click buttons for MOCK / PROXY / MISS to isolate a specific type in the log.
+
+### v1.3 — Sequences
 
 Return different responses on subsequent calls to the same endpoint. Essential for testing polling flows.
 
@@ -93,7 +98,7 @@ Return different responses on subsequent calls to the same endpoint. Essential f
 - UI: visual sequence editor showing the response chain.
 - Example: `GET /deposits/status` → call 1: `{"status": "pending"}` → call 2: `{"status": "processing"}` → call 3: `{"status": "completed"}`.
 
-### v1.3 — Scenarios
+### v1.4 — Scenarios
 
 Group mocks into named sets that activate together with a single toggle.
 
@@ -122,7 +127,7 @@ Group mocks into named sets that activate together with a single toggle.
 }
 ```
 
-### v1.4 — Mock tree view
+### v1.5 — Mock tree view
 
 Collapsible tree view for the mock list sidebar, grouping mocks by path segments.
 
