@@ -95,7 +95,17 @@ If the answer is no, we need to fix the UX before adding new capabilities.
 - **Log search/filter**: text input that filters log rows by substring match on path, method, or type. Instant client-side filtering as you type.
 - **Quick-filter buttons**: one-click buttons for MOCK / PROXY / MISS to isolate a specific type in the log.
 
-### v1.4 — Sequences
+### v1.4 — Migrate to React + Tailwind
+
+Rewrite the frontend from vanilla JS to React + Tailwind CSS. No new features — purely a tech migration to enable complex UI work in subsequent versions.
+
+- Replace embedded HTML/CSS/JS with a Vite + React project
+- Port all existing functionality (log viewer, mock list, editor, QR, port management)
+- Tailwind for styling (replaces hand-written CSS)
+- Wails frontend build integrated into the pipeline
+- Foundation for sequence editor, scenario manager, and tree view
+
+### v1.5 — Sequences
 
 Return different responses on subsequent calls to the same endpoint. Essential for testing polling flows.
 
@@ -104,7 +114,7 @@ Return different responses on subsequent calls to the same endpoint. Essential f
 - UI: visual sequence editor showing the response chain.
 - Example: `GET /deposits/status` → call 1: `{"status": "pending"}` → call 2: `{"status": "processing"}` → call 3: `{"status": "completed"}`.
 
-### v1.5 — Scenarios
+### v1.6 — Scenarios
 
 Group mocks into named sets that activate together with a single toggle.
 
@@ -133,7 +143,7 @@ Group mocks into named sets that activate together with a single toggle.
 }
 ```
 
-### v1.6 — Mock tree view
+### v1.7 — Mock tree view
 
 Collapsible tree view for the mock list sidebar, grouping mocks by path segments.
 
@@ -145,7 +155,7 @@ Collapsible tree view for the mock list sidebar, grouping mocks by path segments
 
 ### v2.0 — Stable release
 
-Bundle v1.1–v1.6 as the second major release. The milestone:
+Bundle v1.1–v1.7 as the second major release. The milestone:
 
 > **Ditto is a native desktop product with polished UX, advanced mocking (sequences + scenarios), and a scalable mock management UI.**
 
