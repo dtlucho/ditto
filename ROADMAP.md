@@ -122,6 +122,16 @@ Group mocks into named sets that activate together with a single toggle.
 }
 ```
 
+### v1.4 — Mock tree view
+
+Collapsible tree view for the mock list sidebar, grouping mocks by path segments.
+
+- Toggle between flat list (current) and grouped tree view
+- Paths are split into segments: `/osb/config/limits` and `/osb/games/` both appear under an `/osb/` node
+- Expand/collapse nodes to drill into path groups
+- Bulk actions on groups: enable/disable all mocks under a path prefix
+- Applies to the mock sidebar only — the request log stays chronological
+
 ---
 
 ## Backlog
