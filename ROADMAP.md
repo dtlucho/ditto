@@ -77,6 +77,7 @@ Replace the browser + Terminal setup with a standalone native application using 
 - **Single window**: dashboard runs inside the app, not in a browser. Close the window = process dies. No orphaned processes, no port leaks.
 - **Persistent storage**: mocks, scenarios, and config stored in `~/Library/Application Support/Ditto/` (macOS), `~/.config/ditto/` (Linux), `%APPDATA%\Ditto\` (Windows). Data survives app updates and reinstalls.
 - **System tray / menu bar** (stretch): minimize to tray, quick-access to start/stop.
+- **Auto-update notification**: on startup, check GitHub Releases for a newer version. If available, show a banner in the dashboard with a direct download link. No silent installs — user replaces the app themselves.
 - Reuses 100% of existing HTML/CSS/JS dashboard code.
 - Builds to a native `.app` (macOS), `.exe` (Windows) — ~15MB binary.
 
