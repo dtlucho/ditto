@@ -6,6 +6,12 @@ interface UpdateBannerProps {
 }
 
 export function UpdateBanner({ info, onDismiss }: UpdateBannerProps) {
+  const handleDownload = (e: React.MouseEvent) => {
+    e.preventDefault()
+    // Open in system browser (works both in Wails and regular browser)
+    window.open(info.download_url, '_blank')
+  }
+
   return (
     <div className="flex items-center gap-3 px-5 py-2 bg-[rgba(88,166,255,0.1)] border-b border-[rgba(88,166,255,0.2)] text-[13px]">
       <span className="flex-1 text-dt-text">
@@ -13,9 +19,8 @@ export function UpdateBanner({ info, onDismiss }: UpdateBannerProps) {
       </span>
       <a
         href={info.download_url}
-        target="_blank"
-        rel="noreferrer"
-        className="text-dt-accent font-semibold no-underline hover:underline"
+        onClick={handleDownload}
+        className="text-dt-accent font-semibold no-underline hover:underline cursor-pointer"
       >
         Download
       </a>
