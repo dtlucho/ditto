@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* Toggle switch */
+.toggle {
+  position: relative;
+  width: 32px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle .slider {
+  position: absolute;
+  inset: 0;
+  background: #30363d;
+  border-radius: 9px;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.toggle .slider::before {
+  content: '';
+  position: absolute;
+  height: 14px;
+  width: 14px;
+  left: 2px;
+  bottom: 2px;
+  background: #e6edf3;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.toggle input:checked + .slider {
+  background: #3fb950;
+}
+
+.toggle input:checked + .slider::before {
+  transform: translateX(14px);
+}
+
+/* Toast animation */
+@keyframes toast-in {
+  from { transform: translate(-50%, 12px); opacity: 0; }
+  to { transform: translate(-50%, 0); opacity: 1; }
+}
+
+.toast-enter {
+  animation: toast-in 0.2s ease-out;
+}
+
+/* Shared component styles */
+.btn {
+  @apply bg-dt-border text-dt-text border border-dt-border px-3.5 py-1.5 rounded-md cursor-pointer text-[13px] transition-colors hover:bg-[#3d444d];
+}
+
+.form-label {
+  @apply text-xs text-dt-muted uppercase tracking-wider;
+}
+
+.form-input {
+  @apply bg-dt-bg border border-dt-border text-dt-text px-3 py-2.5 rounded-md text-[13px] font-mono focus:outline-none focus:border-dt-accent;
+}
+
+.sidebar-heading {
+  @apply text-[13px] uppercase tracking-wider text-dt-muted px-4 py-3.5 border-b border-dt-border flex items-center gap-2 font-semibold;
+}
+
+.log-th {
+  @apply text-left px-3 py-2 bg-dt-surface text-dt-muted text-[11px] uppercase tracking-wider font-semibold border-b border-dt-border;
+}
+
+/* Scrollbar styling for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0d1117;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #30363d;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #484f58;
+}

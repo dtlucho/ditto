@@ -17,7 +17,7 @@ import (
 	qrcode "github.com/skip2/go-qrcode"
 )
 
-//go:embed web
+//go:embed all:frontend/dist
 var webFS embed.FS
 
 // LogEvent represents a single request passing through Ditto.
@@ -82,7 +82,7 @@ type ServerInfo struct {
 func RegisterUI(mux *http.ServeMux, store *MockStore, bus *EventBus, proxyMgr *ProxyManager, info ServerInfo, serveUI bool) {
 	// Serve embedded static files at /__ditto__/ (only when UI is enabled)
 	if serveUI {
-		webContent, _ := fs.Sub(webFS, "web")
+		webContent, _ := fs.Sub(webFS, "frontend/dist")
 		fileServer := http.FileServer(http.FS(webContent))
 		mux.Handle("/__ditto__/", http.StripPrefix("/__ditto__/", fileServer))
 	}
