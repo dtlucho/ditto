@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  # macOS desktop app (Wails) — needs macOS runner for CGO + native frameworks
+  # macOS desktop app (Wails)
   build-macos:
     name: Build macOS ${{ matrix.goarch }}
     runs-on: macos-latest
@@ -55,19 +55,15 @@ jobs:
           path: ${{ steps.package.outputs.asset }}
           retention-days: 1
 
-  # Linux + Windows headless builds — standard cross-compilation on ubuntu
-  build-headless:
-    name: Build ${{ matrix.goos }}/${{ matrix.goarch }}
+  # Linux desktop app (Wails)
+  build-linux:
+    name: Build Linux ${{ matrix.goarch }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
-          - goos: linux
-            goarch: amd64
-          - goos: linux
-            goarch: arm64
-          - goos: windows
-            goarch: amd64
+          - goarch: amd64
+          - goarch: arm64
 
     steps:
       - uses: actions/checkout@v4
@@ -77,49 +73,84 @@ jobs:
         with:
           go-version: "1.26"
 
-      - name: Build binary
-        env:
-          GOOS: ${{ matrix.goos }}
-          GOARCH: ${{ matrix.goarch }}
-          CGO_ENABLED: 0
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev
+
+      - name: Install Wails
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - name: Build Wails app
         run: |
           VERSION="${GITHUB_REF_NAME}"
-          OUTPUT="ditto"
-          if [ "$GOOS" = "windows" ]; then
-            OUTPUT="ditto.exe"
-          fi
-          go build -trimpath -ldflags "-s -w -X main.version=${VERSION}" -o "${OUTPUT}" .
+          wails build -skipbindings -ldflags "-X main.version=${VERSION}" -platform linux/${{ matrix.goarch }}
 
       - name: Package archive
         id: package
         run: |
           VERSION="${GITHUB_REF_NAME}"
-          NAME="ditto_${VERSION}_${{ matrix.goos }}_${{ matrix.goarch }}"
+          NAME="ditto_${VERSION}_linux_${{ matrix.goarch }}"
 
-          mkdir -p "dist/${NAME}/mocks"
+          mkdir -p "dist/${NAME}"
+          cp build/bin/ditto "dist/${NAME}/ditto"
           cp README.md ROADMAP.md "dist/${NAME}/"
-          cp mocks/example.json "dist/${NAME}/mocks/"
 
-          if [ "${{ matrix.goos }}" = "windows" ]; then
-            cp ditto.exe "dist/${NAME}/"
-            cd dist && zip -r "${NAME}.zip" "${NAME}"
-            echo "asset=dist/${NAME}.zip" >> "$GITHUB_OUTPUT"
-          else
-            cp ditto "dist/${NAME}/"
-            cd dist && tar -czf "${NAME}.tar.gz" "${NAME}"
-            echo "asset=dist/${NAME}.tar.gz" >> "$GITHUB_OUTPUT"
-          fi
+          cd dist && tar -czf "${NAME}.tar.gz" "${NAME}"
+          echo "asset=dist/${NAME}.tar.gz" >> "$GITHUB_OUTPUT"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.goos }}-${{ matrix.goarch }}
+          name: linux-${{ matrix.goarch }}
+          path: ${{ steps.package.outputs.asset }}
+          retention-days: 1
+
+  # Windows desktop app (Wails)
+  build-windows:
+    name: Build Windows amd64
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
+
+      - name: Install Wails
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - name: Build Wails app
+        run: |
+          $VERSION = "${{ github.ref_name }}"
+          wails build -skipbindings -ldflags "-X main.version=$VERSION" -platform windows/amd64
+
+      - name: Package archive
+        id: package
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+          NAME="ditto_${VERSION}_windows_amd64"
+
+          mkdir -p "dist/${NAME}"
+          cp build/bin/ditto.exe "dist/${NAME}/ditto.exe"
+          cp README.md ROADMAP.md "dist/${NAME}/"
+
+          cd dist && zip -r "${NAME}.zip" "${NAME}"
+          echo "asset=dist/${NAME}.zip" >> "$GITHUB_OUTPUT"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-amd64
           path: ${{ steps.package.outputs.asset }}
           retention-days: 1
 
   release:
     name: Publish release
-    needs: [build-macos, build-headless]
+    needs: [build-macos, build-linux, build-windows]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
