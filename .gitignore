@@ -1,8 +1,12 @@
 # Binary
 ditto
+!ditto.icns
 
 # Generated TLS certs
 certs/
+
+# Local .app test bundles
+*.app/
 
 # OS
 .DS_Store

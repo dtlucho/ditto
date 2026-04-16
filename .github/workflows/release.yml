@@ -50,14 +50,51 @@ jobs:
       - name: Package archive
         id: package
         run: |
-          NAME="ditto_${GITHUB_REF_NAME}_${{ matrix.goos }}_${{ matrix.goarch }}"
-          mkdir -p "dist/${NAME}"
-          if [ "${{ matrix.goos }}" = "windows" ]; then
-            cp ditto.exe README.md ROADMAP.md "dist/${NAME}/"
+          VERSION="${GITHUB_REF_NAME}"
+          NAME="ditto_${VERSION}_${{ matrix.goos }}_${{ matrix.goarch }}"
+
+          if [ "${{ matrix.goos }}" = "darwin" ]; then
+            # Build Ditto.app bundle for macOS
+            APP="dist/${NAME}/Ditto.app"
+            mkdir -p "${APP}/Contents/MacOS"
+            mkdir -p "${APP}/Contents/Resources"
+
+            # Copy binary, icon, Info.plist
+            cp ditto "${APP}/Contents/MacOS/ditto"
+            cp packaging/Info.plist "${APP}/Contents/Info.plist"
+            # Update version in Info.plist
+            sed -i "s/1.0.0/${VERSION}/g" "${APP}/Contents/Info.plist"
+            # Copy launcher script
+            cp packaging/launcher.sh "${APP}/Contents/MacOS/launcher"
+            chmod +x "${APP}/Contents/MacOS/launcher"
+            chmod +x "${APP}/Contents/MacOS/ditto"
+            # Copy icon
+            cp ditto.icns "${APP}/Contents/Resources/ditto.icns"
+
+            # Also include the raw binary + docs at the top level for CLI users
+            cp ditto "dist/${NAME}/ditto"
+            cp README.md ROADMAP.md "dist/${NAME}/"
+
+            # Create example mocks directory
+            mkdir -p "dist/${NAME}/mocks"
+            cp mocks/example.json "dist/${NAME}/mocks/"
+
+            # Package as .zip (macOS users can double-click to extract)
             cd dist && zip -r "${NAME}.zip" "${NAME}"
             echo "asset=dist/${NAME}.zip" >> "$GITHUB_OUTPUT"
+
+          elif [ "${{ matrix.goos }}" = "windows" ]; then
+            mkdir -p "dist/${NAME}/mocks"
+            cp ditto.exe README.md ROADMAP.md "dist/${NAME}/"
+            cp mocks/example.json "dist/${NAME}/mocks/"
+            cd dist && zip -r "${NAME}.zip" "${NAME}"
+            echo "asset=dist/${NAME}.zip" >> "$GITHUB_OUTPUT"
+
           else
+            # Linux: tar.gz
+            mkdir -p "dist/${NAME}/mocks"
             cp ditto README.md ROADMAP.md "dist/${NAME}/"
+            cp mocks/example.json "dist/${NAME}/mocks/"
             cd dist && tar -czf "${NAME}.tar.gz" "${NAME}"
             echo "asset=dist/${NAME}.tar.gz" >> "$GITHUB_OUTPUT"
           fi
