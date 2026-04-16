@@ -2,7 +2,9 @@
 ditto
 !ditto.icns
 
-# Wails auto-generated
+# Frontend
+frontend/node_modules/
+frontend/dist/
 frontend/wailsjs/
 
 # Wails build output (keep build/appicon.png and build/darwin/ as source files)
