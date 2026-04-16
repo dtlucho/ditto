@@ -1,5 +1,5 @@
 #!/bin/bash
-# Ditto.app launcher — starts Ditto and opens the dashboard.
+# Ditto.app launcher — opens a Terminal window running Ditto.
 # The binary and mocks directory live next to the .app in the same folder.
 
 DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
@@ -9,13 +9,11 @@ MOCKS="$DIR/mocks"
 # Create mocks directory if it doesn't exist
 mkdir -p "$MOCKS"
 
-# Launch Ditto in the background
-"$BINARY" --mocks "$MOCKS" &
-DITTO_PID=$!
-
-# Wait a moment for the server to start, then open the dashboard
-sleep 1
-open "http://localhost:8888/__ditto__/"
-
-# Keep the app alive while ditto runs
-wait $DITTO_PID
+# Open a Terminal window running Ditto.
+# The user sees the logs, can Ctrl+C to stop, and closing the window kills Ditto.
+osascript <<SCRIPT
+tell application "Terminal"
+  activate
+  do script "clear && \"$BINARY\" --mocks \"$MOCKS\"; echo ''; echo 'Ditto stopped. You can close this window.'"
+end tell
+SCRIPT

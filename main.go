@@ -242,6 +242,8 @@ func main() {
 		bus.Publish(event)
 	})
 
+	addr := fmt.Sprintf("0.0.0.0:%d", *port)
+
 	// Startup
 	scheme := "http"
 	if *https {
@@ -257,8 +259,6 @@ func main() {
 	if !*headless {
 		go openBrowser(fmt.Sprintf("%s://localhost:%d/__ditto__/", scheme, *port))
 	}
-
-	addr := fmt.Sprintf("0.0.0.0:%d", *port)
 	if *https {
 		log.Fatal(http.ListenAndServeTLS(addr, certPath, keyPath, mux))
 	} else {

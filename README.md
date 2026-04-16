@@ -10,14 +10,11 @@ Drop a JSON file in the `mocks/` folder, start Ditto, and point your app to it. 
 
 Grab the latest release for your platform from the [Releases page](https://github.com/dtlucho/ditto/releases). Extract the archive and you're done — no Go toolchain required.
 
-```bash
-# Example for macOS Apple Silicon
-curl -L -o ditto.tar.gz \
-  https://github.com/dtlucho/ditto/releases/latest/download/ditto_$(curl -s https://api.github.com/repos/dtlucho/ditto/releases/latest | grep tag_name | cut -d'"' -f4)_darwin_arm64.tar.gz
-tar -xzf ditto.tar.gz
-cd ditto_*_darwin_arm64
-./ditto --version
-```
+**macOS**: Download the `.zip`, double-click to extract, then double-click **Ditto.app** to launch. A Terminal window opens with Ditto running and the dashboard opens in your browser. On first launch, macOS may show a security warning — right-click the app and select "Open" to bypass it (one-time only).
+
+To stop Ditto, press **Ctrl+C** in the Terminal window or simply close it.
+
+**Linux / Windows**: Extract the archive and run the `ditto` binary from the terminal.
 
 Available builds: macOS (Intel + Apple Silicon), Linux (amd64 + arm64), Windows (amd64).
 
