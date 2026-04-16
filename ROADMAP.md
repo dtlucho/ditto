@@ -97,15 +97,14 @@ If the answer is no, we need to fix the UX before adding new capabilities.
 - ~~Responsive log: hides Time/Method/Status/Duration on mobile, path fills available width~~
 - ~~Responsive modal: full-screen on mobile, form fields stack vertically~~
 
-### v1.4 — Migrate to React + Tailwind
+### v1.4 — Migrate to React + Tailwind ✅
 
-Rewrite the frontend from vanilla JS to React + Tailwind CSS. No new features — purely a tech migration to enable complex UI work in subsequent versions.
-
-- Replace embedded HTML/CSS/JS with a Vite + React project
-- Port all existing functionality (log viewer, mock list, editor, QR, port management)
-- Tailwind for styling (replaces hand-written CSS)
-- Wails frontend build integrated into the pipeline
-- Foundation for sequence editor, scenario manager, and tree view
+- ~~Vite + React + TypeScript + Tailwind project in `frontend/`~~
+- ~~All existing functionality ported: log viewer, mock CRUD, editor, QR, port/target management, search/filters, responsive layout~~
+- ~~Go embed updated to serve from `frontend/dist/`~~
+- ~~CI pipeline updated with Node.js setup and frontend build step~~
+- ~~CI workflow added for PR/push validation (frontend + headless + Wails builds)~~
+- ~~Old `web/` and `desktop/` removed~~
 
 ### v1.5 — Sequences
 
