@@ -158,6 +158,9 @@ Bundle v1.1–v1.6 as the second major release. The milestone:
 
 Features not currently prioritized. Will be re-evaluated after v1.3.
 
+### WebSocket support
+- **WebSocket logging & inspection**: capture WebSocket connections and frame-level messages. Needs careful UX planning — dedicated tab, filtering, and throttling to handle high-volume WS traffic without flooding the UI. Definition pending.
+
 ### Traffic inspection & debugging
 - **Breakpoints**: pause a request mid-flight, inspect/modify body and headers, then forward or reject. Like Charles Proxy's breakpoint feature.
 - **Request verification**: assert that the app made specific calls with specific payloads. Useful for automated testing in CI with headless mode.
