@@ -6,6 +6,8 @@ ditto
 frontend/node_modules/
 frontend/dist/
 frontend/wailsjs/
+frontend/*.md5
+frontend/tsconfig.tsbuildinfo
 
 # Wails build output (keep build/appicon.png and build/darwin/ as source files)
 build/bin/
